@@ -1,0 +1,21 @@
+From b91d2a9fa7c9fcf3ae624e544b7410f1339e7d1e Mon Sep 17 00:00:00 2001
+From: Satwika Reddy <satwika1011@gmail.com>
+Date: Sat, 2 Aug 2025 10:14:07 +0530
+Subject: [PATCH] -my commit
+
+---
+ note.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 note.txt
+
+diff --git a/note.txt b/note.txt
+new file mode 100644
+index 0000000..6de92a4
+--- /dev/null
++++ b/note.txt
+@@ -0,0 +1 @@
++hi hello bitchhhhhhhhhhhhhhhhh
+\ No newline at end of file
+-- 
+2.47.1.windows.2
+
