@@ -1,182 +1,253 @@
-Q1: Software Requirements Specification (SRS)
-a. Abstract
-This project aims to develop a centralized Campus Event Management System to streamline the organization, promotion, and participation in college events. The system provides a unified platform for students, faculty, and administrators to manage the entire event lifecycle, including event creation with detailed descriptions, user-friendly registration, a dynamic scheduling calendar, and real-time notifications for updates and reminders. The goal is to increase event attendance, enhance communication, and improve efficiency in managing campus activities.
-b. Functional Requirements
+0) One-time setup (before the task)
 
-Event Creation & Management: Authorized users (administrators, faculty) can create, edit, and publish events with details like title, description, date, time, location, and registration limits.
-User Registration for Events: Students can view upcoming events, register (RSVP), and check their registered events.
+Install JDK 21 (Temurin or Oracle).
 
-c. Non-Functional Requirements
+Verify (optional, outside Eclipse):
+java -version → should say 21.
 
-Usability: Intuitive interface, easy to navigate for all users with minimal training.
-Performance: Responsive system with real-time notifications delivered promptly without significant delay.
+Install Eclipse IDE for Enterprise Java and Web Developers (includes Maven + Tomcat tooling).
 
-d. Identification of Users
+Add JDK 21 to Eclipse
 
-Students: Discover, register, and receive notifications about events.
-Faculty: Organize and manage departmental/academic events or participate.
-Administrators: Manage user accounts, oversee events, and ensure smooth operation.
+Window > Preferences > Java > Installed JREs > Add… > Standard VM
 
+Point to your JDK 21 folder. Check it as default.
 
-Q2: Maven Java Application Development
-Prerequisites
+(Optional) Tomcat
 
-Install Java JDK 11 or higher.
-Install Maven and configure JAVA_HOME.
-Install Git.
-Use Eclipse/IntelliJ IDE.
+If you’ll run it locally: download Tomcat 10.1+ (Jakarta Servlet 6). We’ll match the servlet dependency to this.
 
-Steps
+1) Clone the repo & see Tomcat/Maven issues (2M)
 
-Clone the Repository
+In Eclipse
 
-Run: git clone https://github.com/KumbhamBhargavi75/CampusMgmtSystem.git
-Navigate: cd CampusMgmtSystem
-List files: ls -R (shows pom.xml, src/, etc.)
+File > Import… > Git > Projects from Git (with URI) > Next
 
+URI: https://github.com/KumbhamBhargav/HospitalMSystem.git
+Next through branch & local path screens.
 
-Resolve Compilation Errors
+Choose “Import as general project” → then Eclipse will detect pom.xml and offer “Import as existing Maven project” (or you can do: Right-click project > Configure > Convert to Maven Project).
 
-Error: [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile
-Debug: Run mvn clean install -e to see details (e.g., syntax errors, JDK mismatch).
-Fix: Ensure JAVA_HOME points to JDK 11+; correct code errors from log.
+Check the layout
 
+You should see:
+pom.xml, src/main/java, src/main/webapp (typical Maven webapp layout).
 
-Resolve "Source Option 11 Not Supported"
+See problems quickly
 
-Cause: JDK mismatch (e.g., using JDK 8).
-Fix: Install JDK 11+, set JAVA_HOME, and update IDE JDK settings.
-Upgrade JUnit: Remove <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.11</version><scope>test</scope></dependency> and rely on <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency> (includes JUnit 5).
+Open Window > Show View > Problems.
 
+Right-click project → Run As > Maven build… → Goals: validate → **Run`.
 
-Handle Missing JUnit Version
+Common errors you might see now:
 
-Maven uses version from spring-boot-starter-parent if omitted.
-Explicitly set: <version>4.13.2</version> or use <properties><junit.version>4.13.2</junit.version></properties>.
+“package jakarta.servlet does not exist” (missing servlet API or wrong one).
 
+“Packaging is ‘jar’ but contains web resources” (needs war packaging).
 
-Debug Misspelled <artifactId>
+Java version mismatch (Maven not using 21).
 
-Error: [ERROR] Could not resolve dependencies (e.g., junit:junitt).
-Fix: Correct typo (e.g., junit); verify via search.maven.org.
+2) Clean & package; basic troubleshooting (3M)
 
+Right-click project → Run As > Maven build… → Goals: clean package → Run.
 
-Fix <paking> Typo
+If dependencies fail to download or build errors persist:
 
-Default: jar if <packaging> missing.
-Impact: Builds .jar instead of .war, causing deployment failure.
-Fix: Use <packaging>war</packaging>.
+Right-click project → Maven > Update Project… (Alt+F5) → Force Update of Snapshots/Releases → OK.
 
+If you still see Java version errors, complete step 3 (compiler plugin + JDK 21).
 
-Add MySQL Dependency
+3) Update pom.xml: JDK 21 + Servlet API (3M)
 
-Add: <dependency><groupId>mysql</groupId><artifactId>mysql-connector-java</artifactId><scope>runtime</scope></dependency>.
+Open pom.xml (Eclipse has a nice editor). Make these changes:
 
+a) Ensure it builds a WAR
+<packaging>war</packaging>
 
-Add jQuery 3.6.1
+b) Compiler for Java 21
 
-Via WebJars: <dependency><groupId>org.webjars</groupId><artifactId>jquery</artifactId><version>3.6.1</version></dependency>
-Use: <script src="/webjars/jquery/3.6.1/jquery.min.js"></script> in HTML.
+Use the compiler plugin (best practice; beats only setting properties):
 
-
-Fix Invalid </artifactId>
-
-Error: XML parsing failure, no build output.
-Fix: Ensure <artifactId>my-app</artifactId> matches closing tag.
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <release>21</release>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
 
 
+If you already have a <plugins> block, just add the plugin inside it.
 
-10-11. Change Build Output Directory
+c) Servlet API dependency (match your Tomcat!)
 
-Add: <build><directory>${project.basedir}/build_output</directory></build>.
+If using Tomcat 10.1+ (recommended with JDK 21) → Jakarta Servlet 6:
 
-
-Add JUnit 4.13-beta-2
-
-
-Update: <version>4.13-beta-2</version> in <dependency><groupId>junit</groupId><artifactId>junit</artifactId><scope>test</scope></dependency>.
-Run: mvn clean test.
-
-
-Push to GitHub
-
-
-Run: git status, git add pom.xml, git commit -m "Updated pom", git push origin main.
-Check: Visit your GitHub repo.
-
-Run as Maven Build
-
-In Eclipse: Right-click project > Run As > Maven build... > Goals: clean install.
-In Terminal: mvn clean install.
+<dependencies>
+  <dependency>
+    <groupId>jakarta.servlet</groupId>
+    <artifactId>jakarta.servlet-api</artifactId>
+    <version>6.0.0</version>
+    <scope>provided</scope>
+  </dependency>
+  <!-- other project deps -->
+</dependencies>
 
 
-Q3: Git & GitHub Integration with Maven Project
-Commands
+If using Tomcat 9.x → javax line instead:
 
-Initialize Git: git init
-Commit Snapshot: git add .; git commit -m "Added event registration feature"
-Check Status: git status
-View Commit History: git log or git log --oneline
-List All Branches: git branch -a
-Create Branch: git checkout -b event-scheduler
-Apply Patch: git apply --check name-of-the.patch; git apply name-of-the.patch
-Feature Branch Workflow: git checkout -b online-feedback; git add .; git commit -m "feat: Add UI"; git add .; git commit -m "feat: Implement backend"; git checkout main; git merge online-feedback; git branch -d online-feedback
-Resolve Merge Conflicts: Edit conflicted files, git add <file>, git commit
-Fork & Pull Request: Fork on GitHub, git clone https://github.com/YourUsername/CampusMgmtSystem.git, git checkout -b my-new-feature, git add ., git commit -m "feat: New feature", git push origin my-new-feature, create PR on GitHub.
-Compare with Remote: git fetch origin; git diff origin/main
-Checkout Remote Branch: git fetch origin; git checkout event-feedback
-View Last Commit Diff: git show or git diff HEAD~1 HEAD
+<dependency>
+  <groupId>javax.servlet</groupId>
+  <artifactId>javax.servlet-api</artifactId>
+  <version>4.0.1</version>
+  <scope>provided</scope>
+</dependency>
 
 
-Q4: Docker Containerization for Maven Java Application
-Prerequisites
+Why scope = provided? The container (Tomcat) supplies the servlet classes at runtime; you don’t want to bundle them inside your WAR.
 
-Install Docker and Docker Hub account.
-Clone repo: git clone https://github.com/KumbhamBhargavi75/CampusMgmtSystem.git.
-Install Maven.
+Save pom.xml. Eclipse will auto-download dependencies.
 
-Dockerfile
-dockerfile# Stage 1: Build
-FROM maven:3.8-jdk-11 AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package
+Now try: Right-click project → Run As > Maven build… → Goals: clean compile → **Run`.
 
-# Stage 2: Run
-FROM tomcat:9.0-jdk11-openjdk-slim
-RUN rm -rf /usr/local/tomcat/webapps/*
-COPY --from=builder /app/target/CampusMgmtSystem.war /usr/local/tomcat/webapps/ROOT.war
-EXPOSE 8080
-Commands
+If it fails, the usual reasons are:
 
-Check Docker Version: docker --version or docker version
-Pull & Run Hello-World: docker pull hello-world; docker run hello-world
-Pull & Run Ubuntu Interactively: docker pull ubuntu; docker run -it ubuntu /bin/bash
-Build & Run CSIMAGE: docker build -t csimage .; docker run -d -p 8080:8080 --name campusapp csimage
-Pull & Run Nginx: docker pull nginx; docker run -d -p 8888:80 --name mynginx nginx; docker ps
-Start/Stop Container: docker stop mynginx; docker start mynginx
-List All Containers: docker ps -a
-Stop Container: docker stop campusapp
-Push to Docker Hub: docker login; docker tag csimage your-dockerhub-username/csimage:latest; docker push your-dockerhub-username/csimage:latest (make public on hub.docker.com)
-Check Exit Status: docker inspect campusapp (look for ExitCode) or docker logs campusapp
+You’re on Tomcat 10.1 but added javax (should be jakarta).
+
+Maven still compiling with an older JDK. Fix by ensuring:
+Window > Preferences > Maven > Installations → pick the Maven that uses your JDK 21 (or let m2e use embedded but ensure Eclipse default JRE is JDK 21). Then Project > Clean…, and Maven > Update Project… again.
+
+4) Build the project again (3M)
+
+Run the full build:
+
+Right-click project → Run As > Maven build… → Goals: clean package → **Run`.
+
+If you still get source/target mismatch errors, keep the <release>21</release> plugin as above (do not mix <source>/<target> and <release> in the same config).
+
+5) Bad dependency coordinates scenario (3M)
+
+If your <dependencies> has something like:
+
+<groupId>SE</groupId>
+<artifactId>...</artifactId>
+<version>6.0</version>
 
 
-Q5: Docker Compose
-docker-compose.yml
-yamlversion: '3.8'
-services:
-  TomcatServer:
-    image: tomcat:9.0-slim
-    container_name: plain-tomcat
-    ports:
-      - "8086:8080"
-  CampusMgmtSystemproject:
-    image: your-dockerhub-username/csimage:latest
-    container_name: campus-management-app
-    ports:
-      - "7007:8080"
-Run
+Maven will fail to resolve it (artifact not found).
+Fix: Replace with real coordinates (e.g., jakarta.servlet:jakarta.servlet-api:6.0.0 or javax.servlet:javax.servlet-api:4.0.1) as shown above.
 
-Save as docker-compose.yml, then run: docker-compose up -d.
-Access: http://localhost:8086 (Tomcat) or http://localhost:7007 (CEMS).
+6) WAR name, SNAPSHOT & explaining the generated file (6a + 6b) (6M)
+a) WAR file name (HospitalMSystem vs HospitalMgmtSystem)
+
+By default, Maven names the WAR as:
+
+target/<artifactId>-<version>.war
+
+
+If your <artifactId> is HospitalMSystem and <version> is 1.0-SNAPSHOT,
+you’ll get target/HospitalMSystem-1.0-SNAPSHOT.war.
+
+To force a pretty name (e.g., HospitalMgmtSystem.war), add:
+
+<build>
+  <finalName>HospitalMgmtSystem</finalName>
+  <!-- keep your plugins here too -->
+</build>
+
+
+Rebuild (clean package) → you’ll get:
+
+target/HospitalMgmtSystem.war
+
+b) Remove SNAPSHOT
+
+Change:
+
+<version>1.0</version>
+
+
+(or keep finalName as above; either approach works).
+
+c) What is inside the WAR (explain the generated file)
+
+A WAR is a zip of your web app:
+
+/WEB-INF/classes → your compiled .class files
+
+/WEB-INF/lib → your runtime libs (except those with scope=provided, e.g., servlet API)
+
+JSPs/HTML/CSS/JS from src/main/webapp
+
+WEB-INF/web.xml (if present)
+
+You deploy this as-is to Tomcat: copy to tomcat/webapps or add via Eclipse Servers view.
+
+(Optional) Run on Tomcat from Eclipse (to “show issues in Tomcat”)
+
+Window > Show View > Servers → No servers are available. Click this link to create a new server.
+
+Apache > Tomcat v10.1 Server → point to your Tomcat install folder. Set JRE to JDK 21.
+
+Add your project to the server → Finish.
+
+Right-click server → Start.
+
+If you see errors like:
+
+ClassNotFoundException: jakarta.servlet. → you used javax coords on Tomcat 10+. Switch to jakarta.servlet-api:6.0.0.
+
+ClassNotFoundException: javax.servlet. → you used jakarta on Tomcat 9. Switch to javax.servlet-api:4.0.1.
+
+HTTP 404 → check context path, servlet mappings, or welcome file.
+
+Quick reference: minimal pom.xml bits you’ll likely need
+<project>
+  <!-- … groupId, artifactId, version … -->
+  <packaging>war</packaging>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <dependencies>
+    <!-- Choose ONE of these blocks depending on Tomcat version -->
+
+    <!-- Tomcat 10.1+ (Jakarta Servlet 6) -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- OR Tomcat 9.x (Servlet 4, javax) -->
+    <!--
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    -->
+  </dependencies>
+
+  <build>
+    <finalName>HospitalMgmtSystem</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>21</release>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
