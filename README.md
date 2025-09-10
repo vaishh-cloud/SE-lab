@@ -251,3 +251,107 @@ Quick reference: minimal pom.xml bits you’ll likely need
     </plugins>
   </build>
 </project>
+
+
+
+Q3. Git and GitHub Integration with Maven Project – 30M
+Task: Using the Maven project above, perform Git tasks (1-13, marks as noted). Assume repo is cloned; initialize if needed.
+Guidance (Commands in terminal; use git status often to verify):
+
+Made Changes to One File but Not Staged; Realize They Are Unwanted (2M): Discard: git checkout -- <filename> (or git restore <filename> in Git 2.23+).
+Made a Commit with Wrong Message; Haven't Pushed. How to Fix (2M): Amend: git commit --amend -m "Correct message".
+Fix: View Commit History in Readable Format (2M): git log --oneline --graph (shows branches/commits visually).
+Create Branch "Feature/patient", Switch to It (2M): git checkout -b Feature/patient (creates and switches).
+Made 2 Commits Locally; Don't Want to Upload to Remote. What Do (2M): Don't push: git push origin Feature/patient only when ready. To undo unpushed: git reset --hard HEAD~2.
+Create Branch "Suggestions", Merge with Both Local/Remote? How (3M): Create: git checkout -b Suggestions. Merge local: git merge Feature/patient. Merge remote: git fetch origin; git merge origin/main.
+Pull Latest Changes from Remote, Merge to Local (2M): git pull origin main (fetches and merges).
+Specific Remote Repo; Need to Push Changes to New Branch Without Losing Local (2M): Create branch: git checkout -b new-branch. Push: git push -u origin new-branch (sets upstream without affecting local).
+After Running Git Pull, Notice Local Branch Behind Remote. What Happened (2M): Remote had new commits; pull merged them. Fix conflicts if any: Edit files, git add ., git commit.
+Pushed to Patient Branch on Remote; Contains Local Changes. How Would This Affect (3M): Remote now has your changes; team can pull. No loss if committed properly.
+From Remote Apply Patch File Provided by Teammate, Include in Commit History (3M): Apply: git apply patchfile.patch. Ensure in commit: git add .; git commit -m "Applied patch". Command: git apply for patch application.
+Teammate Emailed Patch with CSS Fix; Apply Locally, Include in Commit (5M): git apply css-fix.patch. Test, then git add .; git commit -m "Fixed CSS via patch". Ensures it's part of history for tracking.
+Which Git Command Used to Apply Patch and Ensure Part of Commit History (3M): git apply <patchfile> to apply; git commit to include in history.
+
+Practice Tip: Use a test repo. Simulate with git init if main repo unavailable. Document git log outputs. Total Q3: 30M – Emphasize branching/merging (15M) and troubleshooting (15M).
+Q4. Docker Containerization for Maven Application – 20M (10+2+8)
+Task: Containerize the Maven project. Refer to given link/documentation for Dockerfile. Ensure copies WAR/JAR and runs on Tomcat base image. (Subparts 1-10 for CLI commands.)
+Guidance (Since link https://github.com/archanareddyse/labinternal-1.git has no specific Dockerfile, use standard Tomcat example):
+
+Write Dockerfile (Refer Link/Doc): Create Dockerfile in project root:
+dockerfileFROM tomcat:9.0-jdk11-openjdk  # Base Tomcat image
+COPY target/HospitalMgmtSystem.war /usr/local/tomcat/webapps/  # Copy WAR
+EXPOSE 8080  # Expose port
+CMD ["catalina.sh", "run"]  # Run Tomcat
+
+
+
+Command to Run Official Nginx Image as Container Named "my_nginx" (1M): docker run --name my_nginx -d -p 8080:80 nginx:latest.
+CLI Command to Docker Build (1M): docker build -t hospital-mgmt . (in project dir with Dockerfile).
+Command to Run Built Image, List All Docker Images with Name "hospital-mgmt" (1M): Run: docker run --name hospital-container -p 8080:8080 -d hospital-mgmt. List: docker images | grep hospital-mgmt.
+Pull Run Command Map Container Port 8080 to Host Port 9090 (1M): docker run --name hospital-app -p 9090:8080 -d hospital-mgmt.
+After Testing, Verify If Accessible in Container and List Containers (1M): Access: docker exec -it hospital-app bash (inside, check ls /usr/local/tomcat/webapps). List: docker ps -a.
+While Running Container, Tag and Push to Docker Hub Account (1M): Tag: docker tag hospital-mgmt yourusername/hospital-mgmt:latest. Push: docker login; docker push yourusername/hospital-mgmt:latest.
+From Container Browser Steps, What to Do to Stop Mapping Now? Access App? (1M): Stop: docker stop hospital-app. Access: Restart with new port, e.g., docker run -p 8080:8080 ....
+Push Custom Image to Inspect Logs, Debug Issue (1M): docker logs hospital-app (for errors like port bind fail).
+Make Available Publicly with Deployed App to Docker Hub Account (1M): After push (step 6), share repo URL or docker pull yourusername/hospital-mgmt.
+CLI to List Removed Containers Open Shell Interactively to Check (1M): List: docker ps -a. Shell: docker exec -it <container_id> /bin/bash.
+
+Practice Tip: Build WAR first (mvn package), then Docker. Test run: http://localhost:8080/HospitalMgmtSystem. Total Q4: 20M – Dockerfile (10M), Commands (10M).
+Q5. Docker Compose – 10M
+Task: Write docker-compose.yml for multi-container: Container 1 – Use pushed Docker image. Container 2 – MongoDB as DB, ensure both run together. Demonstrate startup.
+Guidance:
+
+Create docker-compose.yml:
+yamlversion: '3.8'
+services:
+  app:
+    image: yourusername/hospital-mgmt:latest  # Pushed image
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      - DB_HOST=mongo
+      - DB_PORT=27017
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+
+Run: docker compose up -d. Verify: docker compose ps (both up), http://localhost:8080. Stop: docker compose down. Insert data: docker exec -it <mongo_container> mongosh (e.g., db.patients.insertOne({name: "Test"})).
+
+Practice Tip: Ensure app connects to MongoDB via env vars. Total Q5: 10M – YAML (5M), Demo (5M).
+Q6. Git Pull with Remote Changes – 4M
+Task: Explain process to bring local branch up-to-date without losing changes from https://github.com/KumbhamBhargav/HospitalMSystem.
+Guidance: git fetch origin; git merge origin/main (or git pull origin main). If conflicts: Edit files, git add ., git commit. Without losing: Stash changes first (git stash; git pull; git stash pop).
+Q7. Add Central Dependency Java Servlet API – 6M
+Task: Add to existing project, check pom.xml, run.
+Guidance: Add to <dependencies>:</dependencies>
+xml<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>4.0.1</version>
+    <scope>provided</scope>  <!-- For Tomcat -->
+</dependency>
+Run mvn clean package. Check: No compilation errors for servlets.
+Q8. Developer Removes <dependencies> Section Completely – 6M</dependencies>
+Task: Will Maven Build? Issues During Testing?
+Guidance: Maven will fail (e.g., "No compiler plugin" or missing libs). Issues: Compilation fails (JDK errors), no WAR generated. Fix: Restore section or add minimal deps.
+Q9. Failed to Execute Goal org.apache.maven.plugins:maven-compiler-plugin:3.1 – 6M
+Task: Error [ERROR] No compiler, [INFO] Compilation failure. What Issues?
+Guidance: Issues: Missing/outdated compiler plugin, JDK mismatch. Fix: Add/update plugin as in Q2.3.
+Q10. Running Has JAR Name as JDKName:localerror:80FoodSys/finalName – 3M
+Task: In Build, What Is finalName?
+Guidance: finalName overrides artifactId-version for output (e.g., <finalname>HospitalMgmtSystem</finalname> creates HospitalMgmtSystem.war).
+Q11. Your Project Meant to Deploy on Tomcat, but <packaging>jar</packaging> – 3M
+Task: Like What for WAR?
+Guidance: Change to <packaging>war</packaging> in pom.xml for Tomcat deployment.
+Q12. In pom.xml, Write curl - What? (3M)
+Task: Write curl to download pom.xml.
+Guidance: curl -O https://raw.githubusercontent.com/KumbhamBhargav/HospitalMSystem/main/pom.xml.
+Q13. Will Maven Accept pom.xml, Push to GitHub of Your Account (3M)
+Task: Complete pom.xml, push.
+Guidance: Yes, if valid XML. Push: git add pom.xml; git commit -m "Updated pom"; git push origin main.
