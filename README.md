@@ -1,261 +1,182 @@
-✅ Solution for Campus Event Management System
-Q1. SRS
+Q1: Software Requirements Specification (SRS)
 a. Abstract
-
-This project develops a centralized Campus Event Management System to simplify event planning, promotion, and participation in colleges.
-It provides a single platform for students, faculty, and administrators to handle the event lifecycle.
-Features include:
-
-Event creation and editing
-
-Registration for participants
-
-Scheduling with calendar view
-
-Real-time notifications and reminders
-
-🎯 Goal → Improve event attendance, enhance communication, and streamline management.
-
+This project aims to develop a centralized Campus Event Management System to streamline the organization, promotion, and participation in college events. The system provides a unified platform for students, faculty, and administrators to manage the entire event lifecycle, including event creation with detailed descriptions, user-friendly registration, a dynamic scheduling calendar, and real-time notifications for updates and reminders. The goal is to increase event attendance, enhance communication, and improve efficiency in managing campus activities.
 b. Functional Requirements
 
-Event Creation & Management – Authorized users (admins/faculty) can add, edit, and publish events with details (title, description, date, time, location, limits).
-
-User Registration – Students can view upcoming events, register, and check their registered events.
+Event Creation & Management: Authorized users (administrators, faculty) can create, edit, and publish events with details like title, description, date, time, location, and registration limits.
+User Registration for Events: Students can view upcoming events, register (RSVP), and check their registered events.
 
 c. Non-Functional Requirements
 
-Usability – Intuitive UI for all user roles with minimal training.
-
-Performance – Real-time notifications should be delivered with minimal latency.
+Usability: Intuitive interface, easy to navigate for all users with minimal training.
+Performance: Responsive system with real-time notifications delivered promptly without significant delay.
 
 d. Identification of Users
 
-Students – Register, explore events, and receive notifications.
-
-Faculty – Organize/manage academic or departmental events.
-
-Administrators – Manage users, events, and ensure smooth system functioning.
-
-Q2. Maven Java Application Development
-
-Download Repository & List Files
-
-git clone https://github.com/KumbhamBhargavi75/CampusMgmtSystem.git
-cd CampusMgmtSystem
-ls -R
+Students: Discover, register, and receive notifications about events.
+Faculty: Organize and manage departmental/academic events or participate.
+Administrators: Manage user accounts, oversee events, and ensure smooth operation.
 
 
-Error: [ERROR] Failed to execute goal ...
+Q2: Maven Java Application Development
+Prerequisites
 
-Generic failure → check logs above error.
+Install Java JDK 11 or higher.
+Install Maven and configure JAVA_HOME.
+Install Git.
+Use Eclipse/IntelliJ IDE.
 
-Fixes:
+Steps
 
-Correct syntax errors in .java files.
+Clone the Repository
 
-Ensure JDK 11+ is installed.
-
-mvn clean install -e
-
-
-Source option 11 not supported / Upgrade JUnit
-
-Install JDK 11 → set JAVA_HOME.
-
-In pom.xml remove old JUnit → replace with Spring Boot Test Starter (JUnit 5).
-
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-test</artifactId>
-  <scope>test</scope>
-</dependency>
+Run: git clone https://github.com/KumbhamBhargavi75/CampusMgmtSystem.git
+Navigate: cd CampusMgmtSystem
+List files: ls -R (shows pom.xml, src/, etc.)
 
 
-JUnit dependency without version
+Resolve Compilation Errors
 
-If <version> missing → Maven uses dependencyManagement from parent POM.
-
-To ensure → explicitly set:
-
-<dependency>
-  <groupId>junit</groupId>
-  <artifactId>junit</artifactId>
-  <version>4.13.2</version>
-  <scope>test</scope>
-</dependency>
+Error: [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.1:compile
+Debug: Run mvn clean install -e to see details (e.g., syntax errors, JDK mismatch).
+Fix: Ensure JAVA_HOME points to JDK 11+; correct code errors from log.
 
 
-Misspelled artifactId
+Resolve "Source Option 11 Not Supported"
 
-Maven throws:
-
-Could not resolve dependencies: junit:junitt:jar:4.12
-
-
-Debug → check pom.xml, search Maven Central, fix typos.
-
-<paking> tag
-
-Default → JAR packaging.
-
-Impact → Web project fails (WAR required).
-
-Fix:
-
-<packaging>war</packaging>
+Cause: JDK mismatch (e.g., using JDK 8).
+Fix: Install JDK 11+, set JAVA_HOME, and update IDE JDK settings.
+Upgrade JUnit: Remove <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.11</version><scope>test</scope></dependency> and rely on <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency> (includes JUnit 5).
 
 
-MySQL dependency
+Handle Missing JUnit Version
 
-<dependency>
-  <groupId>mysql</groupId>
-  <artifactId>mysql-connector-java</artifactId>
-  <scope>runtime</scope>
-</dependency>
+Maven uses version from spring-boot-starter-parent if omitted.
+Explicitly set: <version>4.13.2</version> or use <properties><junit.version>4.13.2</junit.version></properties>.
+
+
+Debug Misspelled <artifactId>
+
+Error: [ERROR] Could not resolve dependencies (e.g., junit:junitt).
+Fix: Correct typo (e.g., junit); verify via search.maven.org.
+
+
+Fix <paking> Typo
+
+Default: jar if <packaging> missing.
+Impact: Builds .jar instead of .war, causing deployment failure.
+Fix: Use <packaging>war</packaging>.
+
+
+Add MySQL Dependency
+
+Add: <dependency><groupId>mysql</groupId><artifactId>mysql-connector-java</artifactId><scope>runtime</scope></dependency>.
 
 
 Add jQuery 3.6.1
-Option 1 – WebJars:
 
-<dependency>
-  <groupId>org.webjars</groupId>
-  <artifactId>jquery</artifactId>
-  <version>3.6.1</version>
-</dependency>
+Via WebJars: <dependency><groupId>org.webjars</groupId><artifactId>jquery</artifactId><version>3.6.1</version></dependency>
+Use: <script src="/webjars/jquery/3.6.1/jquery.min.js"></script> in HTML.
 
 
-Reference:
+Fix Invalid </artifactId>
 
-<script src="/webjars/jquery/3.6.1/jquery.min.js"></script>
+Error: XML parsing failure, no build output.
+Fix: Ensure <artifactId>my-app</artifactId> matches closing tag.
 
 
-Incorrect closing tag
 
-Wrong: <artifactId>my-app</artfactId> → XML parse error.
+10-11. Change Build Output Directory
 
-Fix: <artifactId>my-app</artifactId>.
-
-10 & 11. Change default output dir
-
-<build>
-  <directory>${project.basedir}/build_output</directory>
-</build>
+Add: <build><directory>${project.basedir}/build_output</directory></build>.
 
 
 Add JUnit 4.13-beta-2
 
-<dependency>
-  <groupId>junit</groupId>
-  <artifactId>junit</artifactId>
-  <version>4.13-beta-2</version>
-  <scope>test</scope>
-</dependency>
+
+Update: <version>4.13-beta-2</version> in <dependency><groupId>junit</groupId><artifactId>junit</artifactId><scope>test</scope></dependency>.
+Run: mvn clean test.
 
 
-Run:
-
-mvn clean test
+Push to GitHub
 
 
-Push updated project
+Run: git status, git add pom.xml, git commit -m "Updated pom", git push origin main.
+Check: Visit your GitHub repo.
 
-git add pom.xml
-git commit -m "Updated pom.xml with new JUnit and build config"
-git push origin main
+Run as Maven Build
 
-Q3. Git & GitHub Integration with Maven Project (30M)
-
-Initialize repo: git init
-
-Stage + commit:
-
-git add .
-git commit -m "Added event registration feature"
+In Eclipse: Right-click project > Run As > Maven build... > Goals: clean install.
+In Terminal: mvn clean install.
 
 
-Check status: git status
+Q3: Git & GitHub Integration with Maven Project
+Commands
 
-View history: git log --oneline
+Initialize Git: git init
+Commit Snapshot: git add .; git commit -m "Added event registration feature"
+Check Status: git status
+View Commit History: git log or git log --oneline
+List All Branches: git branch -a
+Create Branch: git checkout -b event-scheduler
+Apply Patch: git apply --check name-of-the.patch; git apply name-of-the.patch
+Feature Branch Workflow: git checkout -b online-feedback; git add .; git commit -m "feat: Add UI"; git add .; git commit -m "feat: Implement backend"; git checkout main; git merge online-feedback; git branch -d online-feedback
+Resolve Merge Conflicts: Edit conflicted files, git add <file>, git commit
+Fork & Pull Request: Fork on GitHub, git clone https://github.com/YourUsername/CampusMgmtSystem.git, git checkout -b my-new-feature, git add ., git commit -m "feat: New feature", git push origin my-new-feature, create PR on GitHub.
+Compare with Remote: git fetch origin; git diff origin/main
+Checkout Remote Branch: git fetch origin; git checkout event-feedback
+View Last Commit Diff: git show or git diff HEAD~1 HEAD
 
-Branching: git checkout -b event-scheduler
 
-Apply patch: git apply bugfix.patch
+Q4: Docker Containerization for Maven Java Application
+Prerequisites
 
-Merge + resolve conflicts → git merge branch
+Install Docker and Docker Hub account.
+Clone repo: git clone https://github.com/KumbhamBhargavi75/CampusMgmtSystem.git.
+Install Maven.
 
-Fork & PR workflow → standard GitHub flow
-
-Compare with remote:
-
-git fetch origin
-git diff origin/main
-
-
-Last commit changes: git show
-
-Q4. Docker Containerization (20M)
-
-Multi-stage Dockerfile
-
-# Stage 1: Build
+Dockerfile
+dockerfile# Stage 1: Build
 FROM maven:3.8-jdk-11 AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn clean package
 
-# Stage 2: Run on Tomcat
+# Stage 2: Run
 FROM tomcat:9.0-jdk11-openjdk-slim
 RUN rm -rf /usr/local/tomcat/webapps/*
 COPY --from=builder /app/target/CampusMgmtSystem.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
+Commands
+
+Check Docker Version: docker --version or docker version
+Pull & Run Hello-World: docker pull hello-world; docker run hello-world
+Pull & Run Ubuntu Interactively: docker pull ubuntu; docker run -it ubuntu /bin/bash
+Build & Run CSIMAGE: docker build -t csimage .; docker run -d -p 8080:8080 --name campusapp csimage
+Pull & Run Nginx: docker pull nginx; docker run -d -p 8888:80 --name mynginx nginx; docker ps
+Start/Stop Container: docker stop mynginx; docker start mynginx
+List All Containers: docker ps -a
+Stop Container: docker stop campusapp
+Push to Docker Hub: docker login; docker tag csimage your-dockerhub-username/csimage:latest; docker push your-dockerhub-username/csimage:latest (make public on hub.docker.com)
+Check Exit Status: docker inspect campusapp (look for ExitCode) or docker logs campusapp
 
 
-Build image: docker build -t csimage .
-
-Run: docker run -d -p 8080:8080 --name campusapp csimage
-
-Other answers:
-
-Check images: docker images
-
-Run hello-world: docker run hello-world
-
-Ubuntu interactive: docker run -it ubuntu /bin/bash
-
-Stop/start container: docker stop campusapp / docker start campusapp
-
-Push to Docker Hub:
-
-docker tag csimage your-dockerhub-username/csimage:latest
-docker push your-dockerhub-username/csimage:latest
-
-
-Logs & exit status:
-
-docker inspect <id>
-docker logs <id>
-
-Q5. Docker Compose (10M)
-
+Q5: Docker Compose
 docker-compose.yml
-
-version: '3.8'
-
+yamlversion: '3.8'
 services:
   TomcatServer:
     image: tomcat:9.0-slim
     container_name: plain-tomcat
     ports:
       - "8086:8080"
-
   CampusMgmtSystemproject:
     image: your-dockerhub-username/csimage:latest
     container_name: campus-management-app
     ports:
       - "7007:8080"
+Run
 
-
-Run both:
-
-docker-compose up -d
+Save as docker-compose.yml, then run: docker-compose up -d.
+Access: http://localhost:8086 (Tomcat) or http://localhost:7007 (CEMS).
