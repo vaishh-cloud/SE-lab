@@ -1,0 +1,122 @@
+🔹 PART 1: Working with Docker CLI (Redis Image)
+Step 1: Pull Redis Image
+docker pull redis
+
+Step 2: Run Redis Container
+docker run --name my-redis -d redis
+
+Step 3: Check Running Containers
+docker ps
+
+Step 4: Access Redis CLI
+docker exec -it my-redis redis-cli
+
+
+Inside Redis:
+
+SET name "Alice"
+GET name
+exit
+
+Step 5: Stop Redis Container
+docker stop my-redis
+
+Step 6: Restart Redis Container
+docker start my-redis
+
+Step 7: Remove Container
+
+⚠ Stop container first
+
+docker stop my-redis
+docker rm my-redis
+
+Step 8: Remove Redis Image
+docker rmi redis
+
+🔹 PART 2: Working with Dockerfile (Custom Redis Image)
+Step 1: Create Project Folder
+
+Windows
+
+cd /c/DockerProjects
+mkdir Redis
+cd Redis
+
+
+Linux / macOS
+
+mkdir ~/DockerProjects/Redis
+cd ~/DockerProjects/Redis
+
+Step 2: Create Dockerfile
+
+Create a file named Dockerfile:
+
+FROM redis:latest
+CMD ["redis-server"]
+
+Step 3: Build Custom Image
+docker build -t redisnew .
+
+Step 4: Run Container from Custom Image
+docker run --name myredisnew -d redisnew
+
+Step 5: Check Containers
+docker ps
+docker ps -a
+
+Step 6: Stop Container
+docker stop myredisnew
+
+Step 7: Login to Docker Hub
+docker login
+
+Step 8: Create Image from Container (Commit)
+docker commit <container_id> budarajumadhurika/redis1
+
+
+(example)
+
+docker commit 0e993d2009a1 budarajumadhurika/redis1
+
+Step 9: List Images
+docker images
+
+Step 10: Push Image to Docker Hub
+docker push budarajumadhurika/redis1
+
+Step 11: Remove Container
+docker rm <container_id>
+
+Step 12: Remove Image
+docker rmi budarajumadhurika/redis1
+
+Step 13: Logout from Docker Hub
+docker logout
+
+🔹 PART 3: Pull & Use Image from Docker Hub
+Step 14: Pull Image
+docker pull budarajumadhurika/redis1
+
+Step 15: Run Container
+docker run --name myredis -d budarajumadhurika/redis1
+
+Step 16: Access Redis CLI
+docker exec -it myredis redis-cli
+
+
+Inside Redis:
+
+SET name "Abcdef"
+GET name
+exit
+
+Step 17: Verify Containers
+docker ps -a
+
+Step 18: Cleanup
+docker stop myredis
+docker rm myredis
+docker images
+docker rmi budarajumadhurika/redis1
