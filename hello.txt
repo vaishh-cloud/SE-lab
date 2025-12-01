@@ -1,1 +1,208 @@
-Hello Git
+1 — Create project folder & base compose file
+
+Create folder and enter it:
+
+mkdir compose-lab
+cd compose-lab
+
+
+Create docker-compose.yml (use editor or cat):
+
+cat > docker-compose.yml <<'YAML'
+version: "3.9"
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_db
+YAML
+
+2 — Start services (web + db)
+
+Start in detached mode:
+
+docker compose up -d
+
+
+Check status:
+
+docker compose ps
+docker ps
+
+
+Open in browser:
+
+http://localhost:8080
+
+
+Verify db container:
+
+docker logs <db_container_name>
+# or
+docker compose logs db
+
+3 — Add Redis and depends_on
+
+Edit docker-compose.yml and add redis and depends_on for web:
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - redis
+
+  db:
+    image: postgres:15
+    environment: ...
+
+  redis:
+    image: redis:alpine
+
+
+Restart (recreate if necessary):
+
+docker compose up -d
+docker compose ps
+
+4 — Add custom network & persistent volume
+
+Update docker-compose.yml to include networks + volumes and assign services:
+
+version: "3.9"
+
+networks:
+  app-net:
+
+volumes:
+  db-data:
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    networks:
+      - app-net
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-net
+
+  redis:
+    image: redis:alpine
+    networks:
+      - app-net
+
+
+Apply changes:
+
+docker compose up -d
+docker volume ls
+docker network ls
+
+
+Verify data persistence:
+
+# Stop and remove db container, then bring it back and check data remains
+docker compose stop db
+docker compose rm -f db
+docker compose up -d db
+
+5 — Deploy the same compose on another machine
+
+Zip the folder:
+
+cd ..
+zip -r compose-lab.zip compose-lab
+# transfer compose-lab.zip to target machine
+
+
+On target machine:
+
+unzip compose-lab.zip
+cd compose-lab
+docker compose up -d
+docker compose ps
+
+6 — Add a buildable web app (Flask) for fast iteration
+
+Replace web service with build instructions. Create app.py:
+
+cat > app.py <<'PY'
+from flask import Flask
+app = Flask(__name__)
+@app.route("/")
+def home():
+    return "Hello from Flask + Docker!"
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+PY
+
+
+Create Dockerfile:
+
+cat > Dockerfile <<'DOCK'
+FROM python:3.10-slim
+WORKDIR /app
+COPY app.py /app/
+RUN pip install flask
+CMD ["python", "app.py"]
+DOCK
+
+
+Update docker-compose.yml (web service):
+
+web:
+  build: .
+  ports:
+    - "5000:5000"
+  depends_on:
+    - db
+  networks:
+    - app-net
+
+
+Build & run:
+
+docker compose up --build -d
+
+
+Visit:
+
+http://localhost:5000
+
+
+To iterate: edit app.py then rebuild:
+
+# simple way:
+docker compose up --build -d web
+# or rebuild all
+docker compose up --build -d
+
+7 — Scaling services
+
+Scale web service (multiple replicas; note port binding limitations):
+
+docker compose up -d --scale web=2
+
+
+If web exposes host port (8080 or 5000) you cannot map same host port to multiple containers. Instead use Node port mapping or a reverse proxy (or map only container ports and access via container IP).
