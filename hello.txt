@@ -1,10 +1,7 @@
 1 — Create project folder & base compose file
-
 Create folder and enter it:
-
 mkdir compose-lab
 cd compose-lab
-
 
 Create docker-compose.yml (use editor or cat):
 
